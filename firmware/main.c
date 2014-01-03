@@ -109,7 +109,8 @@ void TxboltTest(void) {
                 packet txbolt_packet;
                 uint32_t stroke = string_to_stroke("PHRO*FR");
                 make_packet(stroke, &txbolt_packet);
-                usb_send_serial_data(&txbolt_packet.byte[0], txbolt_packet.length);
+                usb_send_serial_data(&txbolt_packet.byte[0], 
+                                     txbolt_packet.length);
                 pressed = true;
             }
         } else {
@@ -135,7 +136,8 @@ int main(void) {
     const uint32_t JOY_DOWN = GPIO2;
     const uint32_t JOY_RIGHT = GPIO3;
     const uint32_t JOY_CENTER = GPIO4;
-    const uint32_t JOY_ALL = (JOY_LEFT | JOY_UP | JOY_DOWN | JOY_RIGHT | JOY_CENTER);
+    const uint32_t JOY_ALL = (
+        JOY_LEFT | JOY_UP | JOY_DOWN | JOY_RIGHT | JOY_CENTER);
 
     // Configure the joystick.
     rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
