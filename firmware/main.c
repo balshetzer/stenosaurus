@@ -34,17 +34,9 @@
 
 #include "../common/leds.h"
 
-int main(void) {
-    clock_init();
-
+void NkroButtonTest(void) {
     setup_user_button();
-
     setup_leds();
-
-    usb_init(packet_handler);
-    //sdio_init();
-
-    //bool card_initialized = false;
 
     bool pressed = false;
 
@@ -77,8 +69,15 @@ int main(void) {
             }
         }
         usb_send_keys_if_changed();
+    }
+}
 
-#if 0
+void SdcardTest(void) {
+    sdio_init();
+
+    bool card_initialized = false;
+
+    while (true) {
         if (sdio_card_present() && !card_initialized) {
             print("Card detected.\r\n");
 
@@ -95,15 +94,71 @@ int main(void) {
             print("Card removed.\r\n\r\n");
             card_initialized = false;
         }
-#endif
+    }
+}
 
-#if 0
+void TxboltTest(void) {
+    setup_user_button();
+    setup_leds();
+
+    bool pressed = false;
+
+    while (true) {
         if (is_user_button_pressed()) {
-            packet txbolt_packet;
-            uint32_t stroke = string_to_stroke("PHRO*FR");
-            make_packet(stroke, &txbolt_packet);
-            serial_usb_send_data(&txbolt_packet.byte[0], txbolt_packet.length);
+            if (!pressed) {
+                packet txbolt_packet;
+                uint32_t stroke = string_to_stroke("PHRO*FR");
+                make_packet(stroke, &txbolt_packet);
+                usb_send_serial_data(&txbolt_packet.byte[0], txbolt_packet.length);
+                pressed = true;
+            }
+        } else {
+            if (pressed) {
+                pressed = false;
+            }
         }
-#endif
+    }
+}
+
+void wait(uint32_t ms) {
+    ms += system_millis;
+    while (system_millis < ms);
+}
+
+int main(void) {
+    clock_init();
+    usb_init(packet_handler);
+
+    const uint32_t JOY_PORT = GPIOA;
+    const uint32_t JOY_LEFT = GPIO0;
+    const uint32_t JOY_UP = GPIO1;
+    const uint32_t JOY_DOWN = GPIO2;
+    const uint32_t JOY_RIGHT = GPIO3;
+    const uint32_t JOY_CENTER = GPIO4;
+    const uint32_t JOY_ALL = (JOY_LEFT | JOY_UP | JOY_DOWN | JOY_RIGHT | JOY_CENTER);
+
+    // Configure the joystick.
+    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+    gpio_set_mode(
+        JOY_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, JOY_ALL);
+    gpio_set(JOY_PORT, JOY_ALL);
+
+    // For some reason the initial state of the joystick is wrong.
+    wait(1000);
+
+    while (true) {
+        uint32_t joy_state = (~GPIOA_IDR) & JOY_ALL;
+
+        if (joy_state & JOY_UP) {
+            NkroButtonTest();
+        }
+        if (joy_state & JOY_LEFT) {
+            SdcardTest();
+        }
+        if (joy_state & JOY_RIGHT) {
+            TxboltTest();
+        }
+        if (joy_state & JOY_DOWN) {
+        }
     }
 }
