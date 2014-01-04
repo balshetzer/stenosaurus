@@ -20,6 +20,7 @@
 #include "../common/user_button.h"
 #include "clock.h"
 #include "debug.h"
+#include "keyboard.h"
 #include "protocol.h"
 #include "sdio.h"
 #include "stroke.h"
@@ -30,7 +31,6 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencmsis/core_cm3.h>
-#include "keyboard.h"
 
 #include "../common/leds.h"
 
@@ -121,6 +121,30 @@ void TxboltTest(void) {
     }
 }
 
+void TypingTest(void) {
+    setup_user_button();
+    setup_leds();
+
+    bool pressed = false;
+
+    while (true) {
+        keyboard_poll();
+
+        if (is_user_button_pressed()) {
+            if (!pressed) {
+                led_toggle(0);
+                keyboard_type_string("Hello. ");
+
+                pressed = true;
+            }
+        } else {
+            if (pressed) {
+                pressed = false;
+            }
+        }
+    }
+}
+
 void wait(uint32_t ms) {
     ms += system_millis;
     while (system_millis < ms);
@@ -161,6 +185,9 @@ int main(void) {
             TxboltTest();
         }
         if (joy_state & JOY_DOWN) {
+            TypingTest();
+        }
+        if (joy_state & JOY_CENTER) {
         }
     }
 }

@@ -749,7 +749,7 @@ static struct {
 
 uint8_t nkro_key_report[32];
 
-static bool key_state_chaged;
+static bool key_state_changed;
 
 static uint8_t keyboard_idle = 0;
 
@@ -954,7 +954,7 @@ void usb_keyboard_keys_up() {
     for (size_t i = 0; i < sizeof(nkro_key_report); ++i) {
         nkro_key_report[i] = 0;
     }
-    key_state_chaged = true;
+    key_state_changed = true;
 }
 
 void usb_keyboard_key_up(uint8_t usb_keycode) {
@@ -967,7 +967,7 @@ void usb_keyboard_key_up(uint8_t usb_keycode) {
     else if (byte > 0 && byte < sizeof(nkro_key_report)) {
         nkro_key_report[byte] &= ~(1 << bit);
     }
-    key_state_chaged = true;
+    key_state_changed = true;
 }
 
 void usb_keyboard_key_down(uint8_t usb_keycode) {
@@ -980,13 +980,14 @@ void usb_keyboard_key_down(uint8_t usb_keycode) {
     else if (byte > 0 && byte < sizeof(nkro_key_report)) {
         nkro_key_report[byte] |= (1 << bit);
     }
-    key_state_chaged = true;
+    key_state_changed = true;
 }
 
 uint32_t usb_send_keys_if_changed(void) {
-    if (!key_state_chaged) return 0;
-    key_state_chaged = false;
-    return usb_send_keyboard_report();
+    if (!key_state_changed) return 0;
+    uint32_t bytes_sent = usb_send_keyboard_report();
+    key_state_changed = (bytes_sent == 0);
+    return bytes_sent;
 }
 
 uint32_t usb_send_keyboard_report(void) {

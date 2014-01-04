@@ -410,6 +410,8 @@ int main(int argc, char* argv[])
                 printf("Debug command failed.\n");
             }
         }
+    } else if (argc >= 2 && strcmp(argv[1], "test") == 0) {
+        printf("test\n");
     } else {
         printf("Usage: %s flash <path/to/program.bin>\n", argv[0]);
         result = -1;

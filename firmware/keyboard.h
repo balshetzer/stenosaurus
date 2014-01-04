@@ -22,19 +22,18 @@
 #ifndef STENOSAURUS_FIRMWARE_KEYBOARD_H
 #define STENOSAURUS_FIRMWARE_KEYBOARD_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef struct {
-	uint8_t keycode;
-	bool down;
-} keyboard_event;
+void keyboard_poll(void);
+
+void keyboard_type_string(const char const * str);
 
 // From HID Usage tables chapter 10 (page 53):
 // http://www.usb.org/developers/devclass_docs/Hut1_11.pdf
 enum {
     KEY_RESERVED = 0x0,
-    // We will treat zero as all keys up.
+    // We use this reserved value to indicate all keys up.
     KEY_RESET = 0,
     KEY_ERROR_ROLLOVER,
     KEY_POST_FAIL,
