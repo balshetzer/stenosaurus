@@ -205,7 +205,8 @@ hid_device* enter_bootloader() {
     return enter_device_mode(true);
 }
 
-// This algorithm is described by the Rocksoft^TM Model CRC Algorithm as follows:
+// This algorithm is described by the Rocksoft^TM Model CRC Algorithm as 
+// follows:
 // Name : "CRC-32"
 // Width : 32
 // Poly : 04C11DB7
@@ -215,9 +216,11 @@ hid_device* enter_bootloader() {
 // XorOut : FFFFFFFF
 // Check : CBF43926
 
-static const uint32_t CRC_TABLE[16] = { // Nibble lookup table for 0x04C11DB7 polynomial
-    0x00000000,0x04C11DB7,0x09823B6E,0x0D4326D9,0x130476DC,0x17C56B6B,0x1A864DB2,0x1E475005,
-    0x2608EDB8,0x22C9F00F,0x2F8AD6D6,0x2B4BCB61,0x350C9B64,0x31CD86D3,0x3C8EA00A,0x384FBDBD
+// Nibble lookup table for 0x04C11DB7 polynomial
+static const uint32_t CRC_TABLE[16] = { 
+    0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
+    0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
+    0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD,
 };
 
 uint32_t compute_crc(const uint8_t * buf, uint32_t size) {
@@ -229,9 +232,10 @@ uint32_t compute_crc(const uint8_t * buf, uint32_t size) {
         result = result ^ *((uint32_t *)buf); // Apply all 32-bits
         buf += 4;
 
-        // Process 32-bits, 4 at a time, or 8 rounds
-        result = (result << 4) ^ CRC_TABLE[result >> 28]; // Assumes 32-bit reg, masking index to 4-bits
-        result = (result << 4) ^ CRC_TABLE[result >> 28]; //  0x04C11DB7 Polynomial used in STM32
+        // Process 32-bits, 4 at a time, or 8 rounds. Assumes 32-bit reg,
+        // masking index to 4-bits. 0x04C11DB7 Polynomial used in STM32.
+        result = (result << 4) ^ CRC_TABLE[result >> 28]; 
+        result = (result << 4) ^ CRC_TABLE[result >> 28]; 
         result = (result << 4) ^ CRC_TABLE[result >> 28];
         result = (result << 4) ^ CRC_TABLE[result >> 28];
         result = (result << 4) ^ CRC_TABLE[result >> 28];

@@ -145,14 +145,11 @@ void TypingTest(void) {
     }
 }
 
-void wait(uint32_t ms) {
-    ms += system_millis;
-    while (system_millis < ms);
-}
-
 int main(void) {
     clock_init();
     usb_init(packet_handler);
+
+    // Use of the LEDs and SDIO are mutually exclusive.
 
     const uint32_t JOY_PORT = GPIOA;
     const uint32_t JOY_LEFT = GPIO0;

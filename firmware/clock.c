@@ -44,6 +44,11 @@ void clock_init(void) {
     systick_interrupt_enable();
 }
 
+void wait(uint32_t ms) {
+    ms += system_millis;
+    while (system_millis < ms);
+}
+
 // Implementing a function with this name makes it the handler for the systick
 // interrupt.
 void sys_tick_handler(void) {
